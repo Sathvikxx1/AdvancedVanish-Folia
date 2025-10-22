@@ -6,14 +6,12 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import me.quantiom.advancedvanish.AdvancedVanish
 import me.quantiom.advancedvanish.config.Config
-import me.quantiom.advancedvanish.util.AdvancedVanishAPI
 import me.quantiom.advancedvanish.util.isVanished
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.lang.NullPointerException
 import java.lang.reflect.Type
 import java.util.*
 
@@ -23,7 +21,8 @@ object VanishStateManager {
 
     fun onConfigReload() {
         if (!Config.getValueOrDefault("keep-vanish-state", false)
-            || !Config.getValueOrDefault("keep-vanish-state-persistent", false)) {
+            || !Config.getValueOrDefault("keep-vanish-state-persistent", false)
+        ) {
             return
         }
 
@@ -36,14 +35,21 @@ object VanishStateManager {
 
     fun onDisable() {
         if (!Config.getValueOrDefault("keep-vanish-state", false)
-            || !Config.getValueOrDefault("keep-vanish-state-persistent", false)) {
+            || !Config.getValueOrDefault("keep-vanish-state-persistent", false)
+        ) {
             return
         }
 
         Bukkit.getOnlinePlayers().forEach {
             val isVanished = it.isVanished()
 
-            if (isVanished || it.hasPermission(Config.getValueOrDefault("permissions.vanish", "advancedvanish.vanish"))) {
+            if (isVanished || it.hasPermission(
+                    Config.getValueOrDefault(
+                        "permissions.vanish",
+                        "advancedvanish.vanish"
+                    )
+                )
+            ) {
                 this.savedVanishStates[it.uniqueId] = isVanished
             }
         }

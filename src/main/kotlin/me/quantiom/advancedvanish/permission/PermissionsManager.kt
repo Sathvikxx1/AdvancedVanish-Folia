@@ -1,8 +1,6 @@
 package me.quantiom.advancedvanish.permission
 
 import me.quantiom.advancedvanish.AdvancedVanish
-import me.quantiom.advancedvanish.permission.impl.BPermissionsHandler
-import me.quantiom.advancedvanish.permission.impl.GroupManagerHandler
 import me.quantiom.advancedvanish.permission.impl.LuckPermsHandler
 import org.bukkit.Bukkit
 import java.util.logging.Level
@@ -16,7 +14,10 @@ object PermissionsManager {
         if (usingPermissionsHandler.isNotEmpty()) {
             AdvancedVanish.log(Level.INFO, "Using $usingPermissionsHandler for vanish priority.")
         } else {
-            AdvancedVanish.log(Level.INFO, "Could not find a supported permissions plugin, vanish priority will not be used.")
+            AdvancedVanish.log(
+                Level.INFO,
+                "Could not find a supported permissions plugin, vanish priority will not be used."
+            )
         }
     }
 
@@ -26,15 +27,6 @@ object PermissionsManager {
             return "LuckPerms"
         }
 
-        if (Bukkit.getPluginManager().isPluginEnabled("bPermissions")) {
-            this.handler = BPermissionsHandler()
-            return "bPermissions"
-        }
-
-        if (Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
-            this.handler = GroupManagerHandler()
-            return "GroupManager"
-        }
 
         return ""
     }

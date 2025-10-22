@@ -3,7 +3,6 @@ package me.quantiom.advancedvanish.sync.impl
 import me.quantiom.advancedvanish.AdvancedVanish
 import me.quantiom.advancedvanish.config.Config
 import me.quantiom.advancedvanish.sync.IServerSyncStore
-import org.bukkit.Bukkit
 import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.SQLException
@@ -28,13 +27,15 @@ object SqlServerSyncStore : IServerSyncStore {
             )
 
             val statement = this.connection!!.createStatement()
-            statement.executeUpdate("""
+            statement.executeUpdate(
+                """
                 CREATE TABLE IF NOT EXISTS advancedvanish (
                     id INT AUTO_INCREMENT PRIMARY KEY,
                     uuid CHAR(36) NOT NULL,
                     state BOOLEAN NOT NULL
                 );
-            """.trimIndent())
+            """.trimIndent()
+            )
 
         } catch (e: SQLException) {
             AdvancedVanish.log(Level.SEVERE, "There was an error while attempting to make a connection with SQL: ")
@@ -69,9 +70,10 @@ object SqlServerSyncStore : IServerSyncStore {
     }
 
     override fun setAsync(key: UUID, value: Boolean) {
-        Bukkit.getScheduler().runTaskAsynchronously(AdvancedVanish.instance!!, Runnable {
+        AdvancedVanish.scheduler!!.runAsync {
             try {
-                val updateQuery = "INSERT INTO advancedvanish (uuid, state) VALUES (?, ?) ON DUPLICATE KEY UPDATE state = ?"
+                val updateQuery =
+                    "INSERT INTO advancedvanish (uuid, state) VALUES (?, ?) ON DUPLICATE KEY UPDATE state = ?"
                 val preparedStatement = connection!!.prepareStatement(updateQuery)
                 preparedStatement.setString(1, key.toString())
                 preparedStatement.setBoolean(2, value)
@@ -81,6 +83,6 @@ object SqlServerSyncStore : IServerSyncStore {
                 AdvancedVanish.log(Level.SEVERE, "There was an error while attempting to make a connection with SQL: ")
                 e.printStackTrace()
             }
-        })
+        }
     }
 }

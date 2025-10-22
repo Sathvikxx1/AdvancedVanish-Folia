@@ -1,5 +1,6 @@
 package me.quantiom.advancedvanish.hook.impl
 
+import com.tcoded.folialib.wrapper.task.WrappedTask
 import me.quantiom.advancedvanish.AdvancedVanish
 import me.quantiom.advancedvanish.config.Config
 import me.quantiom.advancedvanish.event.PlayerUnVanishEvent
@@ -10,41 +11,53 @@ import me.quantiom.advancedvanish.util.color
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.scheduler.BukkitRunnable
+import org.bukkit.event.Listener
 
-class ActionBarHook : IHook {
-    private val updateTask: BukkitRunnable =
-        object : BukkitRunnable() {
-            override fun run() {
-                AdvancedVanishAPI.vanishedPlayers.map(Bukkit::getPlayer).map { it!! }.forEach(::sendActionBar)
-            }
-        }
+class ActionBarHook : IHook, Listener {
+
+    private var task: WrappedTask? = null
 
     override fun getID() = "ActionBar"
 
     override fun onEnable() {
-        this.updateTask.runTaskTimer(AdvancedVanish.instance!!, 0L, 40L)
+        task = AdvancedVanish.scheduler!!.runTimerAsync(
+            Runnable { updateActionBars() },
+            0L,
+            40L
+        )
+
+        Bukkit.getPluginManager().registerEvents(
+            this,
+            AdvancedVanish.instance!!
+        )
     }
 
     override fun onDisable() {
-        this.updateTask.cancel()
+        task?.cancel()
+    }
+
+    private fun updateActionBars() {
+        AdvancedVanishAPI.vanishedPlayers
+            .mapNotNull(Bukkit::getPlayer)
+            .forEach(::sendActionBar)
     }
 
     private fun sendActionBar(player: Player) {
-        this.sendActionBarStr(player, Config.getValueOrDefault("messages.action-bar", "<red>You are in vanish."))
-    }
+        val message = Config.getValueOrDefault(
+            "messages.action-bar",
+            "<red>You are in vanish."
+        ).color()
 
-    private fun sendActionBarStr(player: Player, str: String) {
-        AdvancedVanish.adventure?.player(player)?.sendActionBar(str.color())
+        player.sendActionBar(message)
     }
 
     @EventHandler
     private fun onVanish(event: PlayerVanishEvent) {
-        this.sendActionBar(event.player)
+        sendActionBar(event.player)
     }
 
     @EventHandler
     private fun onUnVanish(event: PlayerUnVanishEvent) {
-        this.sendActionBarStr(event.player, "")
+        event.player.sendActionBar("")
     }
 }

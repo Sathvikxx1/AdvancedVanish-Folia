@@ -38,11 +38,11 @@ object AdvancedVanishAPI {
         if (prePlayerVanishEvent.isCancelled) return
 
         this.vanishedPlayers.add(player.uniqueId)
-        
+
         // add vanished metadata to player for other plugins to use
         player.setMetadata("vanished", FixedMetadataValue(AdvancedVanish.instance!!, true))
 
-        val previousEffects: MutableList<PotionEffect> = Lists.newArrayList();
+        val previousEffects: MutableList<PotionEffect> = Lists.newArrayList()
 
         // add potion effects
         Config.getValueOrDefault("when-vanished.give-potion-effects", Lists.newArrayList<String>())
@@ -64,14 +64,18 @@ object AdvancedVanishAPI {
                     } else Integer.MAX_VALUE
 
                     if (onJoin) {
-                        Bukkit.getScheduler().runTaskLater(AdvancedVanish.instance!!, Runnable {
+                        AdvancedVanish.scheduler!!.runAtEntityLater(player, { _ ->
                             player.addPotionEffect(this.createEffect(duration, it[1].toInt() - 1))
                         }, 10L)
                     } else {
-                        player.addPotionEffect(this.createEffect(duration, it[1].toInt() - 1))
+                        AdvancedVanish.scheduler!!.runAtEntity(player) { _ ->
+                            player.addPotionEffect(this.createEffect(duration, it[1].toInt() - 1))
+                        }
                     }
+
                 }
             }
+
 
         if (previousEffects.isNotEmpty()) {
             this.storedPotionEffects[player.uniqueId] = previousEffects
@@ -83,10 +87,13 @@ object AdvancedVanishAPI {
         Bukkit.getOnlinePlayers()
             .filter { it.uniqueId != player.uniqueId }
             .forEach {
-                if (usePriority && it.hasPermission(Config.getValueOrDefault(
-                        "permissions.vanish",
-                        "advancedvanish.vanish"
-                    ))) {
+                if (usePriority && it.hasPermission(
+                        Config.getValueOrDefault(
+                            "permissions.vanish",
+                            "advancedvanish.vanish"
+                        )
+                    )
+                ) {
                     val pPriority = PermissionsManager.handler!!.getVanishPriority(it)
 
                     if (pPriority < playerPriority!!) {
@@ -137,10 +144,13 @@ object AdvancedVanishAPI {
 
         this.storedPotionEffects[player.uniqueId]?.let {
             for (potionEffect in it) {
-                player.removePotionEffect(potionEffect.type)
 
-                if (potionEffect.duration != 0) {
-                    player.addPotionEffect(potionEffect)
+                AdvancedVanish.scheduler!!.runAtEntity(player) { _ ->
+                    player.removePotionEffect(potionEffect.type)
+
+                    if (potionEffect.duration != 0) {
+                        player.addPotionEffect(potionEffect)
+                    }
                 }
             }
 
@@ -153,8 +163,14 @@ object AdvancedVanishAPI {
             }
 
         // ignore if they are in spectator mode (allowed to fly by default)
-        if (player.gameMode != GameMode.SPECTATOR && !player.hasPermission(Config.getValueOrDefault("permissions.keep-fly-on-unvanish", "advancedvanish.keep-fly"))
-            && !Config.getValueOrDefault("advancedvanish.fly.keep-on-unvanish", false)) {
+        if (player.gameMode != GameMode.SPECTATOR && !player.hasPermission(
+                Config.getValueOrDefault(
+                    "permissions.keep-fly-on-unvanish",
+                    "advancedvanish.keep-fly"
+                )
+            )
+            && !Config.getValueOrDefault("advancedvanish.fly.keep-on-unvanish", false)
+        ) {
             player.isFlying = false
             player.allowFlight = false
         }
@@ -199,13 +215,18 @@ object AdvancedVanishAPI {
     fun canSee(player: Player, target: Player): Boolean {
         if (!target.isVanished()) return false
 
-        if (!player.hasPermission(Config.getValueOrDefault(
-                "permissions.vanish",
-                "advancedvanish.vanish"
-            ))) return false
+        if (!player.hasPermission(
+                Config.getValueOrDefault(
+                    "permissions.vanish",
+                    "advancedvanish.vanish"
+                )
+            )
+        ) return false
 
         if (!Config.usingPriorities) return true
 
-        return PermissionsManager.handler!!.getVanishPriority(player) >= PermissionsManager.handler!!.getVanishPriority(target)
+        return PermissionsManager.handler!!.getVanishPriority(player) >= PermissionsManager.handler!!.getVanishPriority(
+            target
+        )
     }
 }

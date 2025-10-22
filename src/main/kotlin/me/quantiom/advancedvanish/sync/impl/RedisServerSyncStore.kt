@@ -3,7 +3,6 @@ package me.quantiom.advancedvanish.sync.impl
 import me.quantiom.advancedvanish.AdvancedVanish
 import me.quantiom.advancedvanish.config.Config
 import me.quantiom.advancedvanish.sync.IServerSyncStore
-import org.bukkit.Bukkit
 import redis.clients.jedis.JedisPool
 import java.util.*
 import java.util.logging.Level
@@ -52,18 +51,22 @@ object RedisServerSyncStore : IServerSyncStore {
     }
 
     override fun setAsync(key: UUID, value: Boolean) {
-        Bukkit.getScheduler().runTaskAsynchronously(AdvancedVanish.instance!!, Runnable {
+        AdvancedVanish.scheduler!!.runAsync {
             try {
                 this.pool?.resource?.let { resource ->
                     resource.set(this.getPlayerKey(key), value.toString())
                     resource.close()
                 }
             } catch (e: Exception) {
-                AdvancedVanish.log(Level.SEVERE, "There was an error while attempting to make a connection with Redis: ")
+                AdvancedVanish.log(
+                    Level.SEVERE,
+                    "There was an error while attempting to make a connection with Redis: "
+                )
                 e.printStackTrace()
             }
-        })
+        }
     }
+
 
     private fun getPlayerKey(uuid: UUID) = "advancedvanish-${uuid}"
 }

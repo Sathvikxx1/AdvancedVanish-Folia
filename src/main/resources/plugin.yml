@@ -1,10 +1,16 @@
-name: ${project.name}
-description: ${project.description}
+name: AdvancedVanish
 author: quantiom
-version: ${project.version}
-main: ${project.groupId}.${project.artifactId}.${project.name}Plugin
+version: 1.3.0
+main: me.quantiom.advancedvanish.AdvancedVanishPlugin
 softdepend: [LuckPerms, PlaceholderAPI, GroupManager, PermissionsEx, bPermissions, DiscordSRV, Dynmap, squaremap, LibsDisguises, PlayerParticles, Essentials, PlaceholderAPI, ProtocolLib]
 api-version: 1.13
+
+folia-supported: true
+
+libraries:
+  - 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.24'
+  - 'org.jetbrains.kotlin:kotlin-stdlib:1.9.24'
+
 commands:
   vanish:
     description: The main vanish command.
