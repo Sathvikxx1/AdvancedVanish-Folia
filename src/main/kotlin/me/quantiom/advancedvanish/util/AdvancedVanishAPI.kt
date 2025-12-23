@@ -215,13 +215,8 @@ object AdvancedVanishAPI {
     fun canSee(player: Player, target: Player): Boolean {
         if (!target.isVanished()) return false
 
-        if (!player.hasPermission(
-                Config.getValueOrDefault(
-                    "permissions.vanish",
-                    "advancedvanish.vanish"
-                )
-            )
-        ) return false
+        if (!player.hasPermission("advancedvanish.cansee"))
+            return false
 
         if (!Config.usingPriorities) return true
 

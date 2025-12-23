@@ -26,8 +26,6 @@ object PermissionsManager {
             this.handler = LuckPermsHandler()
             return "LuckPerms"
         }
-
-
         return ""
     }
 }
