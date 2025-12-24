@@ -47,7 +47,7 @@ dependencies {
     implementation("co.aikar:acf-paper:0.5.1-SNAPSHOT")
 
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.3.0")
+    compileOnly("com.github.retrooper:packetevents-spigot:2.11.1")
     compileOnly("net.essentialsx:EssentialsX:2.20.1")
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("com.discordsrv:discordsrv:1.28.0")

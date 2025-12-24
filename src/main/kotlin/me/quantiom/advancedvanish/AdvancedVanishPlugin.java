@@ -14,6 +14,11 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class AdvancedVanishPlugin extends JavaPlugin {
 
     @Override
+    public void onLoad() {
+        AdvancedVanish.INSTANCE.onLoad(this);
+    }
+
+    @Override
     public void onEnable() {
         // load dependencies
         DependencyManager dependencyManager = new DependencyManager(this);

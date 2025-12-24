@@ -11,9 +11,8 @@ import java.util.logging.Level
 object HooksManager {
     private val hooks: MutableList<IHook> = Lists.newArrayList()
 
-    @Suppress("UNCHECKED_CAST")
     fun setupHooks() {
-        this.addHook("server-list", "ProtocolLib", "Server List", ::ServerListHook)
+        this.addHook("server-list", "packetevents", "Server List", ::ServerListHook)
         this.addHook("essentials", "Essentials", "Essentials", ::EssentialsHook)
         this.addHook("placeholders", "PlaceholderAPI", "Placeholders", ::PlaceHolderApiHook)
         this.addHook("actionbar", "ActionBarAPI", "Action Bar", ::ActionBarHook)
