@@ -1,8 +1,10 @@
 package me.quantiom.advancedvanish
 
 import co.aikar.commands.PaperCommandManager
+import com.github.retrooper.packetevents.PacketEvents
 import com.tcoded.folialib.FoliaLib
 import com.tcoded.folialib.impl.PlatformScheduler
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import me.quantiom.advancedvanish.command.VanishCommand
 import me.quantiom.advancedvanish.config.Config
 import me.quantiom.advancedvanish.hook.HooksManager
@@ -24,6 +26,11 @@ object AdvancedVanish {
         instance?.logger?.log(level, msg)
     }
 
+    fun onLoad(plugin: AdvancedVanishPlugin) {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(plugin));
+        PacketEvents.getAPI().load();
+    }
+
     fun onEnable(plugin: AdvancedVanishPlugin) {
         instance = plugin
 
@@ -36,6 +43,8 @@ object AdvancedVanish {
         }
 
         Config.reload()
+
+        PacketEvents.getAPI().init()
 
         plugin.server.pluginManager.registerEvents(ServerSyncManager, plugin)
         plugin.server.pluginManager.registerEvents(VanishListener, plugin)
@@ -54,5 +63,6 @@ object AdvancedVanish {
 
         HooksManager.disableHooks()
         commandManager?.unregisterCommand(VanishCommand)
+        PacketEvents.getAPI().terminate()
     }
 }
